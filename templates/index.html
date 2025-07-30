@@ -1,0 +1,801 @@
+<!doctype html>
+<html lang="{{ 'ar' if lang == 'ar' else 'en' }}" dir="{{ 'rtl' if lang == 'ar' else 'ltr' }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="NeuroDefender AI Project - Analyze and detect network anomalies.">
+  <meta name="author" content="NeuroDefender Team">
+  <title>{{ strings.title }}</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      --accent-blue: #00d4ff;
+      --primary-bg-color: #0b0f1a;
+      --secondary-bg-color: #111827;
+      --text-color: #ffffff;
+      --accent-color: #00d4ff;
+      --button-hover-color: #00c3ff;
+      --danger-color: #ff3c41;
+      --danger-red: #ff3c41;
+      --success-color: #3cb371;
+      --chart-bg-color: #1f2937;
+      --primary-bg: #0b0f1a;
+      --secondary-bg: #111827;
+      --text-color: #ffffff;
+      --accent-color: #00d4ff;
+      --accent-blue: #00d4ff;
+      --info-blue: #30363d;
+      --success-green: #3cb371;
+      --danger-red: #ff3c41;
+      --border-color: rgba(255, 255, 255, 0.1);
+      --shadow-color: rgba(0, 0, 0, 0.6);
+      --login-btn-bg: #1c1c1c;
+      --login-btn-border: #00d4ff;
+      --login-btn-text: #00d4ff;
+      --login-btn-hover-bg: #00d4ff;
+      --login-btn-hover-text: #1c1c1c;
+      --sidebar-width: 300px;
+      --button-hover-color: #00c3ff;
+      --chart-bg-color: #1f2937;
+      --light-grey: #f8f9fa;
+      --lighter-grey: #e9ecef;
+      --dark-font-color: #000;
+      --table-border-color: #e0e0e0;
+      --footer-text-color: #6c757d;
+    }
+
+
+    body {
+      background-color: var(--primary-bg);
+      color: var(--text-color);
+      font-family: 'Inter', sans-serif;
+      {% if lang == 'ar' %}
+      font-family: 'Cairo', sans-serif;
+      {% endif %}
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    .rtl-mode .sidebar-logo-inside { right: auto; }
+    .ltr-mode .sidebar-logo-inside { left: auto; }
+
+    .sidebar-logo-inside {
+      position: absolute;
+      top: 20px;
+      background-color: var(--secondary-bg);
+      padding: 5px;
+      border-radius: 16px;
+      z-index: 2201;
+      transition: all 0.5s ease;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+    }
+
+    .login-button-container {
+      position: absolute;
+      top: 15px;
+      z-index: 3000;
+    }
+    .rtl-mode .login-button-container {
+      left: 20px;
+    }
+    .ltr-mode .login-button-container {
+      right: 20px;
+    }
+    .login-btn {
+      padding: 10px 18px;
+      font-size: 1rem;
+      font-weight: bold;
+      border-radius: 12px;
+      background-color: #1c1c1c;
+      border: 2px solid var(--accent-color);
+      color: var(--accent-color);
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 12px rgba(0, 212, 255, 0.2);
+    }
+    .login-btn:hover {
+      background-color: var(--accent-color);
+      color: var(--primary-bg-color);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 15px rgba(0, 212, 255, 0.3);
+    }
+
+    .sidebar-logo-inside img {
+      width: 90px;
+      border-radius: 12px;
+      cursor: pointer;
+      display: block;
+    }
+
+    .sidebar-label:hover {
+      background-color: var(--button-hover-color);
+      color: var(--primary-bg);
+      transform: translateY(-2px);
+    }
+
+    .rtl-mode .sidebar.active + .sidebar-label {
+      transform: translateX(calc(var(--sidebar-width) + 20px)); /* Push further right */
+    }
+    .ltr-mode .sidebar.active + .sidebar-label {
+      transform: translateX(calc(-1 * var(--sidebar-width) - 20px)); /* Push further left */
+    }
+
+    .rtl-mode .sidebar { right: calc(-1 * var(--sidebar-width) + 30px); }
+    .ltr-mode .sidebar { left: calc(-1 * var(--sidebar-width) + 30px); }
+    .rtl-mode .sidebar.active { right: 0; }
+    .ltr-mode .sidebar.active { left: 0; }
+    .rtl-mode .sidebar-hover-zone { right: 0; }
+    .ltr-mode .sidebar-hover-zone { left: 0; }
+
+    .sidebar-hover-zone {
+      position: fixed;
+      top: 0;
+      width: 30px;
+      height: 100%;
+      background-color: transparent;
+      z-index: 2100;
+      cursor: pointer;
+    }
+    
+    .sidebar {
+      position: fixed;
+      top: 0;
+      width: var(--sidebar-width);
+      height: 100%;
+      background-color: var(--secondary-bg-color);
+      overflow-y: auto;
+      transition: all 0.5s ease;
+      z-index: 2000;
+      padding: 15px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.6);
+      display: flex;
+      flex-direction: column;
+      padding-bottom: 20px;
+    }
+    .sidebar-header {
+      margin-top: 100px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    .sidebar-label {
+      position: fixed;
+      top: 15px;
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: var(--accent-color);
+      background-color: var(--secondary-bg-color);
+      padding: 8px 14px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.4);
+      z-index: 2101;
+      transition: transform 0.5s ease , opacity 0.5s ease;
+      cursor: pointer;
+    }
+
+    .rtl-mode .sidebar-label { right: 60px; }
+    .ltr-mode .sidebar-label { left: 60px; }
+    .rtl-mode .sidebar.active ~ .sidebar-label {
+      transform: translateX(-250px);
+      opacity: 0;
+    }
+    .ltr-mode .sidebar.active ~ .sidebar-label {
+      transform: translateX(250px);
+      opacity: 0;
+    }
+    .page-title {
+      margin-top: 140px;
+      text-align: center;
+      font-weight: bold;
+      font-size: 2.5rem;
+      color: var(--accent-color);
+      text-shadow: 0 0 10px rgba(0, 212, 255, 0.4);
+      margin-bottom: 50px;
+    }
+    .form-label {
+      color: var(--accent-color);
+      font-size: 1.15rem;
+      font-weight: bold;
+    }
+    .form-control[type="file"] {
+      background-color: var(--secondary-bg-color);
+      border: 1px solid rgba(0, 212, 255, 0.3);
+      color: var(--text-color);
+      padding: 20px;
+      border-radius: 12px;
+    }
+    .form-control[type="file"]::file-selector-button {
+      background-color: var(--accent-color);
+      color: var(--primary-bg-color);
+      border: none;
+      padding: 8px 15px;
+      border-radius: 8px;
+      margin-inline-end: 15px;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+    .form-control[type="file"]::file-selector-button:hover {
+      background-color: var(--button-hover-color);
+    }
+
+    .btn-primary {
+      background-color: var(--accent-color);
+      border-color: var(--accent-color);
+      font-weight: bold;
+      border-radius: 1rem;
+      padding: 10px 25px;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 10px rgba(0, 212, 255, 0.3);
+    }
+    .btn-primary:hover {
+      background-color: var(--button-hover-color);
+      border-color: var(--button-hover-color);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 15px rgba(0, 212, 255, 0.4);
+    }
+
+    .btn-success {
+      background-color: var(--success-color);
+      border-color: var(--success-color);
+      border-radius: 1rem;
+      padding: 10px 25px;
+      font-weight: bold;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 10px rgba(60, 179, 113, 0.3);
+    }
+
+    .btn-success:hover {
+      background-color: #35a065;
+      border-color: #35a065;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 15px rgba(60, 179, 113, 0.4);
+    }
+
+    .btn-secondary {
+      background-color: #6c757d;
+      border-color: #6c757d;
+      border-radius: 1rem;
+      padding: 8px 20px;
+      font-weight: bold;
+      transition: all 0.3s ease;
+    }
+
+    .btn-secondary:hover {
+      background-color: #5a6268;
+      border-color: #5a6268;
+      transform: translateY(-1px);
+    }
+
+    .table-container {
+      margin-top: 40px;
+      background-color: var(--secondary-bg-color);
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+    }
+
+    .table-responsive {
+      overflow-y: auto;
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .table {
+      background-color: var(--text-color);
+      color: #000;
+      margin-bottom: 0;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .table thead {
+      background-color: var(--accent-color);
+      color: var(--primary-bg-color);
+      position: sticky; /* Keep header visible on scroll */
+      top: 0;
+      z-index: 10;
+    }
+    .table th, .table td {
+      padding: 12px 15px;
+      vertical-align: middle;
+      border-bottom: 1px solid #e0e0e0;
+    }
+    .table tbody tr:nth-child(even) {
+      background-color: #f8f9fa; /* Light grey for even rows */
+    }
+    .table tbody tr:hover {
+      background-color: #e9ecef; /* Lighter grey on hover */
+    }
+
+    .anomaly-yes {
+      background-color: var(--danger-color) !important;
+      color: var(--text-color);
+      text-align: center;
+      font-weight: bold;
+    }
+
+    .sidebar-header h5, .mt-4 h5, .settings-section h6 {
+      color: var(--accent-color);
+      margin-bottom: 23px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 7px;
+    }
+
+    .sidebar .sidebar-header {
+      padding: 15px 0;
+      border-bottom: 1px solid var(--border-color);
+      margin-bottom: 20px;
+    }
+    .sidebar .sidebar-header input {
+      width: 100%;
+      padding: 10px;
+      background-color: #2a3344;
+      border: 1px solid rgba(0, 212, 255, 0.3);
+      border-radius: 8px;
+      color: var(--text-color);
+      font-size: 1rem;
+    }
+    .sidebar .sidebar-header input::placeholder {
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    .sidebar-content {
+      flex-grow: 1;
+      overflow-y: auto;
+      padding-bottom: 20px;
+      list-style: none;
+      padding-left: 0;
+    }
+    .sidebar-content::-webkit-scrollbar {
+        width: 8px;
+    }
+    .sidebar-content::-webkit-scrollbar-track {
+        background: var(--secondary-bg);
+        border-radius: 10px;
+    }
+    .sidebar-content::-webkit-scrollbar-thumb {
+        background: var(--info-blue);
+        border-radius: 10px;
+    }
+    .sidebar-content::-webkit-scrollbar-thumb:hover {
+        background: var(--accent-blue);
+    }
+
+    .sidebar a { 
+        text-decoration: none;
+        display: block;
+        transition: 0.2s;
+    }
+    .sidebar a:hover {
+        color: var(--accent-blue);
+        background-color: rgba(0, 212, 255, 0.1);
+    }
+
+    .sidebar .sidebar-header-item {
+      background-color: #1a2233 !important;
+      border-color: rgba(255,255,255,0.1);
+      margin-bottom: -50px;
+      border-radius: 8px;
+      padding: 12px 15px !important;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      color: var(--text-color) !important;
+    }
+    .sidebar .sidebar-header-item strong {
+      color: var(--text-color);
+    }
+    .sidebar .sidebar-header-item small {
+      color: rgba(255,255,255,0.7);
+      display: block;
+      font-size: 0.85rem;
+    }
+    .sidebar .sidebar-header-item .btn {
+      margin-top: 5px;
+      font-size: 0.8rem;
+      padding: 5px 10px;
+      border-radius: 5px;
+    }
+
+    .sidebar .form-control, .sidebar .form-select {
+      background-color: #2a3344; /* Darker input background */
+      border: 1px solid rgba(0, 212, 255, 0.3);
+      color: var(--text-color);
+    }
+    .sidebar .form-control::placeholder {
+      color: rgba(255,255,255,0.6);
+    }
+    .sidebar .list-group-item {
+      background-color: #1a2233 !important; /* Even darker for list items */
+      border-color: rgba(255,255,255,0.1);
+      margin-bottom: 8px;
+      border-radius: 8px;
+      padding: 12px 15px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    .sidebar .list-group-item strong {
+      color: var(--accent-color);
+    }
+    .sidebar .list-group-item small {
+      color: rgba(255,255,255,0.7);
+    }
+
+    .sidebar .btn-outline-info,
+    .sidebar .btn-outline-light,
+    .sidebar .btn-outline-danger {
+      border-radius: 8px;
+      font-weight: normal;
+      transition: all 0.2s ease;
+    }
+    .sidebar .btn-outline-light {
+      color: var(--accent-blue);
+      border-color: var(--accent-blue);
+    }
+    .sidebar .btn-outline-light:hover {
+      background-color: var(--accent-blue);
+      color: var(--secondary-bg);
+    }
+    .sidebar .btn-outline-danger {
+      color: var(--danger-red);
+      border-color: var(--danger-red);
+    }
+    .sidebar .btn-outline-danger:hover {
+      background-color: var(--danger-red);
+      color: var(--text-color);
+    }
+    .sidebar .btn-outline-light:hover,
+    .sidebar .btn-outline-info:hover,
+    .sidebar .btn-outline-danger:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+
+    .settings-section {
+      padding-top: 15px;
+      border-top: 1px solid rgba(255,255,255,0.1);
+      margin-top: 20px !important;
+      padding-left: 15px;
+      padding-right: 15px;
+    }
+
+    .settings-section h6 {
+      color: var(--accent-blue);
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .settings-section .form-select {
+      background-color: #2a3344;
+      border: 1px solid rgba(0, 212, 255, 0.3);
+      color: var(--text-color);
+      width: 255px;
+    }
+    .settings-section .form-select option {
+      background-color: #2a3344;
+      color: var(--text-color);
+    }
+
+    .main-content {
+      padding-top: 20px;
+      padding-bottom: 80px;
+      transition: margin-left 0.3s ease, margin-right 0.3s ease;
+    }
+    .rtl-mode .sidebar.active + .main-content { margin-right: 300px; }
+    .ltr-mode .sidebar.active + .main-content { margin-left: 300px; }
+    
+    .ltr-mode .main-content.sidebar-active {
+      margin-left: auto;
+      margin-right: auto;
+      max-width: calc(1200px - var(--sidebar-width));
+    }
+    .rtl-mode .main-content.sidebar-active {
+      margin-right: var(--sidebar-width);
+      margin-left: 0;
+      max-width: calc(1200px - var(--sidebar-width));
+    }
+    .ltr-mode .main-content:not(.sidebar-active) {
+      margin-left: auto;
+      margin-right: auto;
+      max-width: 1200px;
+    }
+    .rtl-mode .main-content:not(.sidebar-active) {
+      margin-left: auto;
+      margin-right: auto;
+      max-width: 1200px;
+    }
+
+    h2 {
+        color: var(--accent-blue);
+        font-weight: 700;
+        font-size: 2.8rem;
+        margin-bottom: 50px;
+        text-shadow: 0 0 15px rgba(88, 166, 255, 0.4);
+    }
+    
+    .anomaly-no {
+      background-color: var(--success-color) !important;
+      color: var(--text-color);
+      text-align: center;
+      font-weight: bold;
+    }
+    .data-row { display: none; }
+    .data-row.visible { display: table-row; }
+    .btn-more { margin-top: 15px; }
+    footer {
+      position: relative; /* Changed to relative if main content padding is enough */
+      bottom: 0;
+      width: 100%;
+      text-align: center;
+      color: #6c757d;
+      font-size: 0.85rem; /* Slightly larger font */
+      padding: 20px 0; /* Add padding to footer */
+      background-color: var(--primary-bg-color);
+      border-top: 1px solid rgba(255,255,255,0.05);
+      margin-top: 50px;
+    }
+    .chart-container {
+      color: var(--accent-color);
+      font-weight: bold;
+      margin-bottom: 25px;
+      text-shadow: 0 0 8px rgba(0, 212, 255, 0.2);
+    }
+    canvas {
+      max-height: 350px; 
+      height: 350px;
+      width: 100%;
+      background-color: white;
+      border-radius: 8px;
+      min-width: 600px;
+    }
+
+    body:not(.table-present) footer {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+    }
+
+    .alert-message {
+      margin-top: 20px;
+      padding: 15px;
+      border-radius: 8px;
+      text-align: center;
+      font-weight: bold;
+    }
+    .alert-success { background-color: var(--success-color); color: var(--text-color); }
+    .alert-danger { background-color: var(--danger-color); color: var(--text-color); }
+
+  </style>
+</head>
+<body class="{{ 'rtl-mode' if lang == 'ar' else 'ltr-mode' }} {% if sidebar_open %}sidebar-open{% endif %}">
+  
+  <div class="login-button-container">
+    <a href="{{ url_for('login', lang=lang) }}" class="btn btn-outline-light btn-sm login-btn">
+      <i class="bi bi-box-arrow-in-right"></i> {{ 'تسجيل الدخول' if lang == 'ar' else 'Log In' }}
+    </a>
+  </div>
+
+  <div class="sidebar-hover-zone" onmouseenter="openSidebar()" onmouseleave="closeSidebar()"></div>
+  <div id="sidebar" class="sidebar" onmouseenter="openSidebar()" onmouseleave="closeSidebar()">
+    <a href="{{ url_for('index', lang=lang) }}" class="sidebar-logo-inside">
+      <img src="{{ url_for('static', filename='neurodefender without.png') }}" alt="NeuroDefender Logo">
+    </a>
+    <div class="sidebar-header">
+      <h5><i class="bi bi-clock-history"></i> {{ 'ملفات سابقة' if lang == 'ar' else 'Previous Files' }}</h5>
+      <input type="text" id="fileSearchInput" placeholder="{{ strings.search_placeholder if strings else 'Search files...' }}" aria-label="{{ strings.search_placeholder if strings else 'Search files...' }}">
+      {% if history %}
+              {% for item in history %}
+              <li class="sidebar-header-item d-flex justify-content-between align-items-start">
+                  <div>
+                      <strong>{{ item.filename }}</strong><br>
+                      <small>{{ item.date }}</small>
+                  </div>
+                  <a href="{{ url_for('download_file', filename=item.filename) }}" class="btn btn-sm btn-outline-light ms-auto" aria-label="{{ 'تحميل' if lang == 'ar' else 'Download' }} {{ item.filename }}">
+                      {{ 'تحميل' if lang == 'ar' else 'Download' }}
+                  </a>
+              </li>
+              {% endfor %}
+          {% else %}
+              <li class="sidebar-header-item text-center">
+                  {{ 'لا توجد ملفات حاليًا.' if lang == 'ar' else 'No files available yet.' }}
+              </li>
+          {% endif %}
+    </div>
+    <div class="mt-4">
+      <h5><i class="bi bi-speedometer2"></i> {{ 'لوحة التحكم' if lang == 'ar' else 'Dashboard' }}</h5>
+      <a href="{{ url_for('dashboard', lang=lang) }}" class="btn btn-outline-info w-100 mt-2">
+        <i class="bi bi-bar-chart-line-fill"></i> {{ 'عرض اللوحة' if lang == 'ar' else 'View Dashboard' }}
+      </a>
+    </div>
+    
+    <div class="settings-section mt-3">
+      <h6><i class="bi bi-gear-fill"></i> {{ 'الإعدادات' if lang == 'ar' else 'Settings' }}</h6>
+      <form method="get" aria-label="{{ 'تحديد اللغة' if lang == 'ar' else 'Language Selection' }}">
+        <select name="lang" onchange="this.form.submit()" class="form-select form-select-sm mt-2">
+          <option value="ar" {% if lang == 'ar' %}selected{% endif %}>العربية</option>
+          <option value="en" {% if lang == 'en' %}selected{% endif %}>English</option>
+        </select>
+      </form>
+      <form action="{{ url_for('clear_history', lang=lang) }}" method="post" class="mt-3">
+        <button type="submit" class="btn btn-sm btn-outline-danger w-100" 
+                onclick="return confirm('{{ 'هل أنت متأكد من مسح السجل؟' if lang == 'ar' else 'Are you sure you want to clear the history?' }}')"
+                aria-label="{{ 'مسح السجل' if lang == 'ar' else 'Clear History' }}">
+          <i class="bi bi-trash"></i> {{ 'مسح السجل' if lang == 'ar' else 'Clear History' }}
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <div class="sidebar-label" id="sidebarLabel">NeuroDefender</div>
+
+  <div class="container main-content">
+    <h1 class="page-title">{{ strings.title }}</h1>
+
+    <form method="post" enctype="multipart/form-data" class="mb-5 mt-4">
+      <div class="mb-2 text-center">
+        <label class="form-label" style="font-size: 1.1rem;">{{ strings.upload_label }}</label>
+      </div>
+      <div class="mb-3">
+        <input class="form-control" type="file" name="file" accept=".pcap,.pcapng,.csv">
+      </div>
+      <div class="text-center mt-3">
+        <button class="btn btn-primary" type="submit">
+          <i class="bi bi-upload"></i> {{ strings.upload_button }}
+        </button>
+      </div>
+    </form>
+
+    {% if table %}
+    <div class="table-container">
+      <div class="table-responsive">
+        {{ table|safe }}
+      </div>
+      <div class="text-center mt-3">
+        <button class="btn btn-secondary btn-more" onclick="showMoreRows()">
+          {{ strings.show_more }}
+        </button>
+      </div>
+    </div>
+    {% endif %}
+
+    {% if download_link %}
+    <div class="text-center mt-4">
+      <a href="{{ download_link }}" class="btn btn-success">
+        <i class="bi bi-download"></i> {{ strings.download_btn }}
+      </a>
+    </div>
+    {% endif %}
+
+    {% if threat_counts %}
+    <div class="chart-container">
+      <h4 class="text-center mb-4">{{ 'إحصائيات الهجمات' if lang == 'ar' else 'Threat Statistics' }}</h4>
+      <canvas id="threatChart" height="300"></canvas>
+    </div>
+
+    <script>
+      const threatCounts = JSON.parse('{{ threat_counts | safe }}');
+      const labels = Object.keys(threatCounts);
+      const data = Object.values(threatCounts);
+
+      const backgroundColors = [
+        '#00d4ff', '#3cb371', '#ff3c41', '#ffa500', '#9b59b6',
+        '#f1c40f', '#1abc9c', '#e74c3c', '#3498db', '#e67e22',
+        '#2ecc71', '#ff6b81', '#2c3e50'
+      ];
+
+      const ctx = document.getElementById('threatChart').getContext('2d');
+      new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: '{{ "عدد الهجمات" if lang == "ar" else "Number of Threats" }}',
+            data: data,
+            backgroundColor: backgroundColors.slice(0, labels.length),
+            borderRadius: 10,
+            borderSkipped: false,
+            hoverBackgroundColor: '#00c3ff',
+            maxBarThickness: 40
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: true,
+          aspectRatio: 2,
+          animations: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: '#111',
+              titleColor: '#00d4ff',
+              bodyColor: '#fff',
+              borderColor: '#00d4ff',
+              borderWidth: 1,
+              callbacks: {
+                label: function(context) {
+                  return `{{ 'عدد' if lang == 'ar' else 'Count' }}: ${context.parsed.y}`;
+                }
+              }
+            }
+          },
+          layout: {
+            padding: { top: 10, bottom: 10, left: 10, right: 10 }
+          },
+          scales: {
+            x: {
+              ticks: {
+                color: '#fff',
+                font: { weight: 'bold' },
+                maxRotation: 45,
+                minRotation: 45,
+                autoSkip: false
+              },
+              grid: { color: 'rgba(255,255,255,0.05)' }
+            },
+            y: {
+              beginAtZero: true,
+              ticks: {
+                color: '#fff',
+                font: { weight: 'bold' }
+              },
+              grid: { color: 'rgba(255,255,255,0.05)' }
+            }
+          }
+        }
+      });
+    </script>
+    {% endif %}
+
+
+</div>
+
+  {% if not table %}
+  <footer>
+    <p>&copy; 2025 NeuroDefender AI Project</p>
+  </footer>
+  {% endif %}
+
+  <script>
+    function openSidebar() {
+      document.getElementById("sidebar").classList.add("active");
+    }
+    function closeSidebar() {
+      document.getElementById("sidebar").classList.remove("active");
+    }
+    function filterFiles() {
+      const input = document.getElementById("searchInput").value.toLowerCase();
+      const items = document.querySelectorAll("#fileList li");
+      items.forEach(item => {
+        const text = item.innerText.toLowerCase();
+        item.style.display = text.includes(input) ? "" : "none";
+      });
+    }
+    function showMoreRows() {
+      const hiddenRows = document.querySelectorAll('.table-container .data-row:not(.visible)');
+      for (let i = 0; i < 20 && i < hiddenRows.length; i++) {
+        hiddenRows[i].classList.add('visible');
+      }
+      if (document.querySelectorAll('.table-container .data-row:not(.visible)').length === 0) {
+        const btnMore = document.querySelector('.btn-more');
+        if (btnMore) {
+          btnMore.style.display = 'none';
+        }
+      }
+    }
+    document.addEventListener('DOMContentLoaded', () => {
+      showMoreRows();
+      {% if sidebar_open %}openSidebar();{% endif %}
+    });
+  </script>
+</body>
+</html>
