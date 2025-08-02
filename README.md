@@ -66,8 +66,8 @@ neurodefender/
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/baody682/NeuroDefender-AI-Cyber-Threat-Classifier.git
-cd NeuroDefender-AI-Cyber-Threat-Classifier
+git clone https://github.com/baody682/NeuroDefender-AI-Cyber-Threat-Classifier-demo.git
+cd NeuroDefender-AI-Cyber-Threat-Classifier-demo
 ```
 
 ### 2. Install Requirements
