@@ -548,12 +548,13 @@
       font-weight: bold;
       margin-bottom: 25px;
       text-shadow: 0 0 8px rgba(0, 212, 255, 0.2);
+      margin-top: 20px;
     }
     canvas {
       max-height: 350px; 
       height: 350px;
       width: 100%;
-      background-color: white;
+      background-color: black;
       border-radius: 8px;
       min-width: 600px;
     }
@@ -677,7 +678,7 @@
     {% endif %}
 
     {% if threat_counts %}
-    <div class="chart-container">
+    <div class="chart-container" style="background-color: var(--secondary-bg-color); padding: 25px; border-radius: 12px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4); margin-bottom: 30px;">
       <h4 class="text-center mb-4">{{ 'إحصائيات الهجمات' if lang == 'ar' else 'Threat Statistics' }}</h4>
       <canvas id="threatChart" height="300"></canvas>
     </div>
@@ -690,7 +691,7 @@
       const backgroundColors = [
         '#00d4ff', '#3cb371', '#ff3c41', '#ffa500', '#9b59b6',
         '#f1c40f', '#1abc9c', '#e74c3c', '#3498db', '#e67e22',
-        '#2ecc71', '#ff6b81', '#2c3e50'
+        '#2ecc71', '#ff6b81', '#2c3e50', '#8e44ad', '#c0392b' // Added more colors
       ];
 
       const ctx = document.getElementById('threatChart').getContext('2d');
@@ -702,28 +703,37 @@
             label: '{{ "عدد الهجمات" if lang == "ar" else "Number of Threats" }}',
             data: data,
             backgroundColor: backgroundColors.slice(0, labels.length),
-            borderRadius: 10,
+            borderRadius: 8, // Slightly reduced for subtler look
             borderSkipped: false,
             hoverBackgroundColor: '#00c3ff',
-            maxBarThickness: 40
+            maxBarThickness: 35 // Slightly reduced max thickness
           }]
         },
         options: {
           responsive: true,
           maintainAspectRatio: true,
           aspectRatio: 2,
-          animations: false,
+          animations: { // Re-enabled animations for a smoother visual experience
+            tension: {
+              duration: 1000,
+              easing: 'easeOutQuart',
+              from: 1,
+              to: 0,
+              loop: true
+            }
+          },
           plugins: {
             legend: { display: false },
             tooltip: {
-              backgroundColor: '#111',
+              backgroundColor: 'rgba(25, 25, 25, 0.9)', // Slightly lighter dark for tooltip background
               titleColor: '#00d4ff',
-              bodyColor: '#fff',
+              bodyColor: '#e0e0e0', // Light grey for body text
               borderColor: '#00d4ff',
               borderWidth: 1,
+              cornerRadius: 6,
               callbacks: {
                 label: function(context) {
-                  return `{{ 'عدد' if lang == 'ar' else 'Count' }}: ${context.parsed.y}`;
+                  return `${context.label}: {{ 'عدد' if lang == 'ar' else 'Count' }}: ${context.parsed.y}`;
                 }
               }
             }
@@ -734,27 +744,34 @@
           scales: {
             x: {
               ticks: {
-                color: '#fff',
+                color: '#e0e0e0', // Light grey for x-axis ticks
                 font: { weight: 'bold' },
                 maxRotation: 45,
                 minRotation: 45,
                 autoSkip: false
               },
-              grid: { color: 'rgba(255,255,255,0.05)' }
+              grid: {
+                color: 'rgba(255,255,255,0.08)', // Slightly more visible grid lines
+                drawBorder: false // Hide border line
+              }
             },
             y: {
               beginAtZero: true,
               ticks: {
-                color: '#fff',
+                color: '#e0e0e0', // Light grey for y-axis ticks
                 font: { weight: 'bold' }
               },
-              grid: { color: 'rgba(255,255,255,0.05)' }
+              grid: {
+                color: 'rgba(255,255,255,0.08)', // Slightly more visible grid lines
+                drawBorder: false
+              }
             }
           }
         }
       });
     </script>
     {% endif %}
+
 
 
 </div>
