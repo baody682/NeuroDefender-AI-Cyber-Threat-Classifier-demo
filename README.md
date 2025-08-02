@@ -47,10 +47,15 @@
 
 neurodefender/
 ├── app.py # Flask app entry point
+
 ├── model/ # Trained ML models (joblib)
+
 ├── static/ # NeuroDefender logo & assets
+
 ├── templates/ # HTML templates, CSS, JS
+
 ├── utils/ # SHAP, LIME explainers and helpers
+
 ├── cicflowmeter/ # Traffic flow extraction (Java tool)
 
 ---
@@ -127,6 +132,6 @@ Abdelrahman Mahboub (aka Body)
 
 - 🔗 [GitHub](https://github.com/baody682)
 - 📧 [Email](mailto:bodymahboub.eg@gmail.com)
-- 🌐 [LinkedIn]([https://www.linkedin.com/in/your-link](https://www.linkedin.com/in/abdelrahman-mahboub-416499327/))
+- 🌐 [LinkedIn]([https://www.linkedin.com/in/abdelrahman-mahboub-416499327/](https://www.linkedin.com/in/abdelrahman-mahboub-416499327/))
 
 ⭐ If you find this project helpful, please consider giving it a star!
