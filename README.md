@@ -46,6 +46,7 @@
 ## 🗂️ Project Structure
 
 neurodefender/
+
 ├── app.py # Flask app entry point
 
 ├── model/ # Trained ML models (joblib)
