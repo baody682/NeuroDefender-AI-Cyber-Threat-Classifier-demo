@@ -612,12 +612,6 @@
               </li>
           {% endif %}
     </div>
-    <div class="mt-4">
-      <h5><i class="bi bi-speedometer2"></i> {{ 'لوحة التحكم' if lang == 'ar' else 'Dashboard' }}</h5>
-      <a href="{{ url_for('dashboard', lang=lang) }}" class="btn btn-outline-info w-100 mt-2">
-        <i class="bi bi-bar-chart-line-fill"></i> {{ 'عرض اللوحة' if lang == 'ar' else 'View Dashboard' }}
-      </a>
-    </div>
     
     <div class="settings-section mt-3">
       <h6><i class="bi bi-gear-fill"></i> {{ 'الإعدادات' if lang == 'ar' else 'Settings' }}</h6>
